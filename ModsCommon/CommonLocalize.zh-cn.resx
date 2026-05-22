@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- 基础词条 -->
+  <data name="ControlPoint1" xml:space="preserve"><value>控制点 1</value></data>
+  <data name="ControlPoint2" xml:space="preserve"><value>控制点 2</value></data>
+  <data name="EndPoint" xml:space="preserve"><value>终点</value></data>
+  <data name="FieldPanel_ScrollWheel" xml:space="preserve"><value>滚动滚轮以改变数值
+Shift 键 x10, Ctrl 键 x0.1</value></data>
+  <data name="HorizontalShift" xml:space="preserve"><value>横向偏移</value></data>
+  <data name="LaneEditor" xml:space="preserve"><value>车道控制器</value></data>
+  <data name="MessageBox_Cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="MessageBox_DontShowAgain" xml:space="preserve"><value>不再显示</value></data>
+  <data name="MessageBox_MoreInfo" xml:space="preserve"><value>更多信息</value></data>
+  <data name="MessageBox_No" xml:space="preserve"><value>否</value></data>
+  <data name="MessageBox_OK" xml:space="preserve"><value>确定</value></data>
+  <data name="MessageBox_Yes" xml:space="preserve"><value>是</value></data>
+  <data name="Mod_Status" xml:space="preserve"><value>状态：{0}</value></data>
+  <data name="Panel_Additional" xml:space="preserve"><value>附加</value></data>
+  <data name="SelectionMessage" xml:space="preserve"><value>选择车道以进行编辑。</value></data>
+  <data name="Settings_TranslationDescription" xml:space="preserve"><value>您可以协助完善模组翻译，或将模组翻译为您使用的语言</value></data>
+  <data name="StartPoint" xml:space="preserve"><value>起点</value></data>
+  <data name="VerticalShift" xml:space="preserve"><value>纵向偏移</value></data>
+
+  <!-- 热键词条 -->
+  <data name="Key_Control" xml:space="preserve"><value>Ctrl 键</value></data>
+  <data name="Key_Alt" xml:space="preserve"><value>Alt 键</value></data>
+  <data name="Key_Shift" xml:space="preserve"><value>Shift 键</value></data>
+  <data name="Key_Enter" xml:space="preserve"><value>回车键</value></data>
+  <data name="Key_Tab" xml:space="preserve"><value>Tab 键</value></data>
+  <data name="Settings_PressAnyKey" xml:space="preserve"><value>请按下任意键...</value></data>
+  <data name="ListPanel_ScrollWheel" xml:space="preserve"><value>滚动滚轮以浏览列表</value></data>
+
+  <!-- 右键菜单与提示词条 -->
+  <data name="ResetControlPoints" xml:space="preserve"><value>重置控制点</value></data>
+  <data name="ApplyBetweenIntersections" xml:space="preserve"><value>应用于交叉口之间</value></data>
+  <data name="ApplyToWholeStreet" xml:space="preserve"><value>应用于整条街道</value></data>
+  <data name="HoldControlForVerticalShift" xml:space="preserve"><value>按住 Ctrl 键进行纵向偏移</value></data>
+</root>

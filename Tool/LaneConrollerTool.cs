@@ -365,11 +365,22 @@ namespace LaneController.Tool
                 }
             };
             LaneControllerPanel.CreatePanel();
-            string fullPath = UUIHelpers.GetFullPath<LaneControllerMod>(["uui_lane_controller.png"]);
-            UUIButton = UUIHelpers.RegisterToolButton("LaneController", null, "Lane Controller", this, UUIHelpers.LoadTexture(fullPath), new UUIHotKeys
+
+            // 【修改点：增加异常保护，防止图片丢失或前置库缺失导致整个模组崩溃】
+            try
             {
-                ActivationKey = LaneControllerSettings.ActivationShortcut
-            });
+                string fullPath = UUIHelpers.GetFullPath<LaneControllerMod>(["uui_lane_controller.png"]);
+                UUIButton = UUIHelpers.RegisterToolButton("LaneController", null, "Lane Controller", this, UUIHelpers.LoadTexture(fullPath), new UUIHotKeys
+                {
+                    ActivationKey = LaneControllerSettings.ActivationShortcut
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Info("无法注册 UUI 按钮，请检查是否安装了 Unified UI 或 uui_lane_controller.png 是否缺失。");
+                ex.Log();
+            }
+
             base.enabled = false;
         }
 

@@ -1,6 +1,8 @@
+using System;
 using CitiesHarmony.API;
 using LaneController.KianCommons.Utils;
 using LaneController.Manager;
+using LaneController.Tool;
 
 namespace LaneController.LifeCycle
 {
@@ -9,41 +11,61 @@ namespace LaneController.LifeCycle
         public const string HARMONY_ID = "cs.lanecontroller";
 
         public override string ModName => "Lane Controller";
-
         public override string Description => "Adjust lane paths.";
 
         public override void Start()
         {
             HarmonyHelper.DoOnHarmonyReady(delegate
             {
-                HarmonyUtil.InstallHarmony("cs.lanecontroller");
+                HarmonyUtil.InstallHarmony(HARMONY_ID);
             });
         }
 
         public override void OnSettingsUI(UIHelper helper)
         {
-            LaneControllerSettings.OnSettingsUI(helper);
+            try { LaneControllerSettings.OnSettingsUI(helper); } catch (Exception ex) { ex.Log(); }
         }
 
         public override void Load()
         {
-            LaneControllerManager.Ensure();
+            try
+            {
+                LaneControllerManager.Ensure();
+                if (LaneControllerTool.Instance == null)
+                {
+                    LaneControllerTool.Create();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Info("[LaneController] 初始化工具失败，请检查资源和本地化配置！");
+                ex.Log();
+            }
         }
 
         public override void HotReload()
         {
-            SerializableDataExtension.Load();
-            Load();
+            try
+            {
+                SerializableDataExtension.Load();
+                Load();
+            }
+            catch (Exception ex) { ex.Log(); }
         }
 
         public override void UnLoad()
         {
-            LaneControllerManager.Release();
+            try
+            {
+                LaneControllerTool.Remove();
+                LaneControllerManager.Release();
+            }
+            catch (Exception ex) { ex.Log(); }
         }
 
         public override void End()
         {
-            HarmonyUtil.UninstallHarmony("cs.lanecontroller");
+            try { HarmonyUtil.UninstallHarmony(HARMONY_ID); } catch (Exception ex) { ex.Log(); }
         }
     }
 }

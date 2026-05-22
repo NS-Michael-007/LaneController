@@ -5,6 +5,7 @@ using ColossalFramework.UI;
 using LaneController.CustomData;
 using LaneController.KianCommons.Utils;
 using LaneController.Manager;
+using LaneController.ModsCommon;      // 【核心修复】引入了手写的 CommonLocalize
 using LaneController.ModsCommon.UI;
 using LaneController.Util;
 using UnityEngine;
@@ -14,20 +15,15 @@ namespace LaneController.UI.Editors
     public class LaneEditor : BaseEditor<LaneItem, CustomLane, LaneIcons>
     {
         private FloatPropertyPanel ShiftField;
-
         private FloatPropertyPanel HeightField;
-
         private Vector3PropertyPanel A;
-
         private Vector3PropertyPanel B;
-
         private Vector3PropertyPanel C;
-
         private Vector3PropertyPanel D;
 
-        public override string Name => "Lane Editor";
+        public override string Name => CommonLocalize.LaneEditor;
 
-        public override string SelectionMessage => "Select lane to edit it.";
+        public override string SelectionMessage => CommonLocalize.SelectionMessage;
 
         private Vector3PropertyPanel[] DeltaControlPoints => [A, B, C, D];
 
@@ -47,10 +43,7 @@ namespace LaneController.UI.Editors
 
         public IEnumerable<CustomLane> IterateOtherSelectedLanes()
         {
-            if (EditObject == null)
-            {
-                yield break;
-            }
+            if (EditObject == null) yield break;
             foreach (ushort selectedSegmentId in ToolInstance.SelectedSegmentIds)
             {
                 int index = EditObject.Index;
@@ -64,10 +57,7 @@ namespace LaneController.UI.Editors
 
         public IEnumerable<CustomLane> IterateSelectedLanes()
         {
-            if (EditObject == null)
-            {
-                yield break;
-            }
+            if (EditObject == null) yield break;
             foreach (ushort selectedSegmentId in ToolInstance.SelectedSegmentIds)
             {
                 int index = EditObject.Index;
@@ -108,18 +98,25 @@ namespace LaneController.UI.Editors
                 {
                     DeleteUIComponent(item);
                 }
+
                 ShiftField = SettingsPanel.AddUIComponent<FloatPropertyPanel>();
-                ShiftField.Init("Horizontal Shift");
+                ShiftField.Init(CommonLocalize.HorizontalShift);
+
                 HeightField = SettingsPanel.AddUIComponent<FloatPropertyPanel>();
-                HeightField.Init("Vertical Shift");
+                HeightField.Init(CommonLocalize.VerticalShift);
+
                 A = SettingsPanel.AddUIComponent<Vector3PropertyPanel>();
-                A.Init("Start Point");
+                A.Init(CommonLocalize.StartPoint);
+
                 B = SettingsPanel.AddUIComponent<Vector3PropertyPanel>();
-                B.Init("Control Point 1");
+                B.Init(CommonLocalize.ControlPoint1);
+
                 C = SettingsPanel.AddUIComponent<Vector3PropertyPanel>();
-                C.Init("Control Point 2");
+                C.Init(CommonLocalize.ControlPoint2);
+
                 D = SettingsPanel.AddUIComponent<Vector3PropertyPanel>();
-                D.Init("End Point");
+                D.Init(CommonLocalize.EndPoint);
+
                 PullValues();
                 AddEvents();
                 ToolInstance.SetLane(EditObject.Index);

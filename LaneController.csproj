@@ -1,72 +1,358 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net35</TargetFramework>
 		<Deterministic>false</Deterministic>
 		<AssemblyTitle>LaneController</AssemblyTitle>
-		<AssemblyVersion>1.0.*</AssemblyVersion>
+
+		<!-- 修复版本号报错：阻止 SDK 自动追加 Git 提交哈希 -->
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<Version>1.0.0</Version>
+		<ProductVersion>1.0.0.0</ProductVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+		<GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+
 		<LangVersion>preview</LangVersion>
 		<AssemblyName>LaneController</AssemblyName>
+		<RootNamespace>LaneController</RootNamespace>
+
+		<!-- 核心：关闭默认隐式包含，完全手动控制 -->
+		<EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
 	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>none</DebugType>
 		<DebugSymbols>false</DebugSymbols>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>portable</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+	</PropertyGroup>
+
+	<!-- 强制排除所有自动生成的 Designer 文件，彻底阻断二义性 -->
+	<ItemGroup>
+		<Compile Remove="**\*.Designer.cs" />
+	</ItemGroup>
+
+	<!-- 1. 部署逻辑：精准复制，PDB 不存在时跳过 -->
 	<Target Name="DeployToModDirectory" AfterTargets="Build">
 		<PropertyGroup>
 			<ModDirectory>$(LOCALAPPDATA)\Colossal Order\Cities_Skylines\Addons\Mods\$(ProjectName)\</ModDirectory>
 		</PropertyGroup>
 		<ItemGroup>
-			<ModFiles Include="$(TargetDir)*.*" />
+			<ModFiles Include="$(TargetDir)$(AssemblyName).dll" />
+			<!-- Release 下不生成 PDB，加 Exists 条件避免 Copy 任务报错 -->
+			<ModFiles Include="$(TargetDir)$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+			<ModFiles Include="$(ProjectDir)Resources\uui_lane_controller.png" />
 		</ItemGroup>
-		<RemoveDir Directories="$(ModDirectory)" />
-		<Copy SourceFiles="@(ModFiles)" DestinationFolder="$(ModDirectory)" />
+		<Copy SourceFiles="@(ModFiles)" DestinationFolder="$(ModDirectory)" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="$(TargetDir)zh-CN\$(AssemblyName).resources.dll" DestinationFolder="$(ModDirectory)zh-CN\" OverwriteReadOnlyFiles="true" Condition="Exists('$(TargetDir)zh-CN\$(AssemblyName).resources.dll')" />
 	</Target>
+
 	<ItemGroup>
-	  <Compile Remove="libs\**" />
-	  <EmbeddedResource Remove="libs\**" />
-	  <None Remove="libs\**" />
+		<Compile Remove="libs\**" />
+		<EmbeddedResource Remove="libs\**" />
+		<None Remove="libs\**" />
 	</ItemGroup>
+
+	<!-- 2. 双语打包 -->
 	<ItemGroup>
-	  <PackageReference Include="CitiesHarmony.API" Version="2.2.0" />
+<EmbeddedResource Include="ModsCommon\CommonLocalize.resx" />
+		<EmbeddedResource Include="ModsCommon\CommonLocalize.zh-cn.resx" />
 	</ItemGroup>
+
+	<!-- 全量 UI 图片资源 -->
+	<ItemGroup>
+		<None Remove="Resources\CloseButton\CloseButtonHovered.png" />
+		<None Remove="Resources\CloseButton\CloseButtonNormal.png" />
+		<None Remove="Resources\CloseButton\CloseButtonPressed.png" />
+		<None Remove="Resources\ColorPicker\ColorPickerBoard.png" />
+		<None Remove="Resources\ColorPicker\ColorPickerColor.png" />
+		<None Remove="Resources\ColorPicker\ColorPickerDisabled.png" />
+		<None Remove="Resources\ColorPicker\ColorPickerHovered.png" />
+		<None Remove="Resources\ColorPicker\ColorPickerNormal.png" />
+		<None Remove="Resources\directions.png" />
+		<None Remove="Resources\Empty.png" />
+		<None Remove="Resources\Field\FieldDisabled.png" />
+		<None Remove="Resources\Field\FieldDisabledLeft.png" />
+		<None Remove="Resources\Field\FieldDisabledMiddle.png" />
+		<None Remove="Resources\Field\FieldDisabledRight.png" />
+		<None Remove="Resources\Field\FieldFocused.png" />
+		<None Remove="Resources\Field\FieldFocusedLeft.png" />
+		<None Remove="Resources\Field\FieldFocusedMiddle.png" />
+		<None Remove="Resources\Field\FieldFocusedRight.png" />
+		<None Remove="Resources\Field\FieldHovered.png" />
+		<None Remove="Resources\Field\FieldHoveredLeft.png" />
+		<None Remove="Resources\Field\FieldHoveredMiddle.png" />
+		<None Remove="Resources\Field\FieldHoveredRight.png" />
+		<None Remove="Resources\Field\FieldNormal.png" />
+		<None Remove="Resources\Field\FieldNormalLeft.png" />
+		<None Remove="Resources\Field\FieldNormalMiddle.png" />
+		<None Remove="Resources\Field\FieldNormalRight.png" />
+		<None Remove="Resources\HeaderAdditionalButton.png" />
+		<None Remove="Resources\HeaderButtons\AddTemplateHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\ApplyHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\ApplyTemplateHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\BeetwenIntersectionsHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\CopyHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\CutHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\DuplicateHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\EdgeLinesHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\EditHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\NotSaveHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\PackageHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\PasteHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\ResetControlPointsHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\ResetHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\SaveHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\SetDefaultHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\UnsetDefaultHeaderButton.png" />
+		<None Remove="Resources\HeaderButtons\WholeStreetHeaderButton.png" />
+		<None Remove="Resources\HeaderHover.png" />
+		<None Remove="Resources\laneTypes.png" />
+		<None Remove="Resources\ListItem.png" />
+		<None Remove="Resources\OpacitySlider\OpacitySliderBoard.png" />
+		<None Remove="Resources\OpacitySlider\OpacitySliderColor.png" />
+		<None Remove="Resources\resize.png" />
+		<None Remove="Resources\Tabs\Tab.png" />
+		<None Remove="Resources\Tabs\TabDisabled.png" />
+		<None Remove="Resources\Tabs\TabFocused.png" />
+		<None Remove="Resources\Tabs\TabHover.png" />
+		<None Remove="Resources\Tabs\TabNormal.png" />
+		<None Remove="Resources\Tabs\TabPressed.png" />
+		<None Remove="Resources\TextFieldPanel.png" />
+		<None Remove="Resources\uui_lane_controller.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\CloseButton\CloseButtonHovered.png">
+			<LogicalName>LaneController.Resources.CloseButton.CloseButtonHovered.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\CloseButton\CloseButtonNormal.png">
+			<LogicalName>LaneController.Resources.CloseButton.CloseButtonNormal.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\CloseButton\CloseButtonPressed.png">
+			<LogicalName>LaneController.Resources.CloseButton.CloseButtonPressed.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ColorPicker\ColorPickerBoard.png">
+			<LogicalName>LaneController.Resources.ColorPicker.ColorPickerBoard.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ColorPicker\ColorPickerColor.png">
+			<LogicalName>LaneController.Resources.ColorPicker.ColorPickerColor.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ColorPicker\ColorPickerDisabled.png">
+			<LogicalName>LaneController.Resources.ColorPicker.ColorPickerDisabled.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ColorPicker\ColorPickerHovered.png">
+			<LogicalName>LaneController.Resources.ColorPicker.ColorPickerHovered.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ColorPicker\ColorPickerNormal.png">
+			<LogicalName>LaneController.Resources.ColorPicker.ColorPickerNormal.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\directions.png">
+			<LogicalName>LaneController.Resources.directions.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Empty.png">
+			<LogicalName>LaneController.Resources.Empty.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldDisabled.png">
+			<LogicalName>LaneController.Resources.Field.FieldDisabled.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldDisabledLeft.png">
+			<LogicalName>LaneController.Resources.Field.FieldDisabledLeft.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldDisabledMiddle.png">
+			<LogicalName>LaneController.Resources.Field.FieldDisabledMiddle.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldDisabledRight.png">
+			<LogicalName>LaneController.Resources.Field.FieldDisabledRight.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldFocused.png">
+			<LogicalName>LaneController.Resources.Field.FieldFocused.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldFocusedLeft.png">
+			<LogicalName>LaneController.Resources.Field.FieldFocusedLeft.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldFocusedMiddle.png">
+			<LogicalName>LaneController.Resources.Field.FieldFocusedMiddle.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldFocusedRight.png">
+			<LogicalName>LaneController.Resources.Field.FieldFocusedRight.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldHovered.png">
+			<LogicalName>LaneController.Resources.Field.FieldHovered.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldHoveredLeft.png">
+			<LogicalName>LaneController.Resources.Field.FieldHoveredLeft.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldHoveredMiddle.png">
+			<LogicalName>LaneController.Resources.Field.FieldHoveredMiddle.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldHoveredRight.png">
+			<LogicalName>LaneController.Resources.Field.FieldHoveredRight.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldNormal.png">
+			<LogicalName>LaneController.Resources.Field.FieldNormal.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldNormalLeft.png">
+			<LogicalName>LaneController.Resources.Field.FieldNormalLeft.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldNormalMiddle.png">
+			<LogicalName>LaneController.Resources.Field.FieldNormalMiddle.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Field\FieldNormalRight.png">
+			<LogicalName>LaneController.Resources.Field.FieldNormalRight.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderAdditionalButton.png">
+			<LogicalName>LaneController.Resources.HeaderAdditionalButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\AddTemplateHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.AddTemplateHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\ApplyHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.ApplyHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\ApplyTemplateHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.ApplyTemplateHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\BeetwenIntersectionsHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.BeetwenIntersectionsHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\CopyHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.CopyHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\CutHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.CutHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\DuplicateHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.DuplicateHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\EdgeLinesHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.EdgeLinesHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\EditHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.EditHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\NotSaveHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.NotSaveHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\PackageHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.PackageHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\PasteHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.PasteHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\ResetControlPointsHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.ResetControlPointsHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\ResetHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.ResetHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\SaveHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.SaveHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\SetDefaultHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.SetDefaultHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\UnsetDefaultHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.UnsetDefaultHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderButtons\WholeStreetHeaderButton.png">
+			<LogicalName>LaneController.Resources.HeaderButtons.WholeStreetHeaderButton.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\HeaderHover.png">
+			<LogicalName>LaneController.Resources.HeaderHover.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\laneTypes.png">
+			<LogicalName>LaneController.Resources.laneTypes.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\ListItem.png">
+			<LogicalName>LaneController.Resources.ListItem.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\OpacitySlider\OpacitySliderBoard.png">
+			<LogicalName>LaneController.Resources.OpacitySlider.OpacitySliderBoard.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\OpacitySlider\OpacitySliderColor.png">
+			<LogicalName>LaneController.Resources.OpacitySlider.OpacitySliderColor.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\resize.png">
+			<LogicalName>LaneController.Resources.resize.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\Tab.png">
+			<LogicalName>LaneController.Resources.Tabs.Tab.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\TabDisabled.png">
+			<LogicalName>LaneController.Resources.Tabs.TabDisabled.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\TabFocused.png">
+			<LogicalName>LaneController.Resources.Tabs.TabFocused.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\TabHover.png">
+			<LogicalName>LaneController.Resources.Tabs.TabHover.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\TabNormal.png">
+			<LogicalName>LaneController.Resources.Tabs.TabNormal.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\Tabs\TabPressed.png">
+			<LogicalName>LaneController.Resources.Tabs.TabPressed.png</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Resources\TextFieldPanel.png">
+			<LogicalName>LaneController.Resources.TextFieldPanel.png</LogicalName>
+		</EmbeddedResource>
+		<Content Include="Resources\uui_lane_controller.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CitiesHarmony.API" Version="2.2.0">
+			<PrivateAssets>all</PrivateAssets>
+			<ExcludeAssets>runtime</ExcludeAssets>
+			<GeneratePathProperty>False</GeneratePathProperty>
+		</PackageReference>
+	</ItemGroup>
+
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>D:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="ColossalManaged">
-			<HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>D:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="ICities">
-			<HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>D:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\ICities.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="MoveItIntegration">
-		  <HintPath>libs\MoveItIntegration.dll</HintPath>
-		  <Private>False</Private>
+			<HintPath>libs\MoveItIntegration.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>D:\SteamLibrary\steamapps\workshop\content\255710\2781804786\Newtonsoft.Json.dll</HintPath>
 		</Reference>
 		<Reference Include="UnifiedUILib">
-		  <HintPath>libs\UnifiedUILib.dll</HintPath>
-		  <Private>True</Private>
+			<HintPath>libs\UnifiedUILib.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
-			<Private>false</Private>
+			<HintPath>D:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="System.Runtime.Serialization">
+			<HintPath>libs\System.Runtime.Serialization.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
+
 	<Target Name="ExcludeModdingReferences" AfterTargets="ResolveAssemblyReferences;CopyFilesToOutputDirectory">
 		<ItemGroup>
-			<!-- Remove specific DLLs from the copy list -->
-			<ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'PopsApiWrapper' or &#xD;&#xA;                 '%(Filename)' == 'Assembly-CSharp-firstpass' or &#xD;&#xA;                 '%(Filename)' == 'ICSharpCode.SharpZipLib'" />
-
-			<!-- Identify and delete any leftover PDB files in the output directory -->
-			<DeletePdbFiles Include="$(TargetDir)*.pdb" />
+			<ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' == 'PopsApiWrapper' or '%(Filename)' == 'Assembly-CSharp-firstpass' or '%(Filename)' == 'ICSharpCode.SharpZipLib' or '%(Filename)' == 'Assembly-CSharp' or '%(Filename)' == 'ColossalManaged' or '%(Filename)' == 'ICities' or '%(Filename)' == 'UnityEngine'" />
 		</ItemGroup>
-
-		<!-- This task actively deletes the PDBs after the build finishes -->
-		<Delete Files="@(DeletePdbFiles)" />
 	</Target>
 </Project>

@@ -6,6 +6,9 @@ using System.Xml.Serialization;
 using LaneController.CustomData;
 using LaneController.KianCommons.Serialization;
 using LaneController.KianCommons.Utils;
+using ColossalFramework;
+using System.IO; // 新增，用于读写流
+using UnityEngine; // 新增，用于打日志
 
 namespace LaneController.Manager
 {
@@ -14,7 +17,7 @@ namespace LaneController.Manager
         internal static Version LoadingVersion;
 
         [XmlIgnore]
-        internal Dictionary<uint, CustomLane> Lanes = new(1000);
+        internal Dictionary<uint, CustomLane> Lanes = new Dictionary<uint, CustomLane>(1000);
 
         public static LaneControllerManager Instance { get; private set; }
 
@@ -75,8 +78,22 @@ namespace LaneController.Manager
             Log.Called();
             if (SavedLanes.Any())
             {
-                string s = XMLSerializerUtil.Serialize(this);
-                return Encoding.ASCII.GetBytes(s);
+                try
+                {
+                    // 使用原生的 XmlSerializer 替代底层有 Bug 的 XMLSerializerUtil
+                    XmlSerializer serializer = new XmlSerializer(typeof(LaneControllerManager));
+                    using (StringWriter stringWriter = new StringWriter())
+                    {
+                        serializer.Serialize(stringWriter, this);
+                        // 使用 UTF8 避免中文字符乱码
+                        return Encoding.UTF8.GetBytes(stringWriter.ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[LaneController] Serialize Error: {ex}");
+                    return null;
+                }
             }
             return null;
         }
@@ -86,14 +103,20 @@ namespace LaneController.Manager
             try
             {
                 Log.Called();
-                if (data == null)
+                if (data == null || data.Length == 0)
                 {
                     return Create();
                 }
-                string data2 = Encoding.ASCII.GetString(data);
-                Instance = XMLSerializerUtil.Deserialize<LaneControllerManager>(data2);
-                Instance.UpdateAllLanes();
-                return Instance;
+                string data2 = Encoding.UTF8.GetString(data);
+
+                // 使用原生的 XmlSerializer 替代底层有 Bug 的 XMLSerializerUtil
+                XmlSerializer serializer = new XmlSerializer(typeof(LaneControllerManager));
+                using (StringReader stringReader = new StringReader(data2))
+                {
+                    Instance = (LaneControllerManager)serializer.Deserialize(stringReader);
+                    Instance.UpdateAllLanes();
+                    return Instance;
+                }
             }
             catch (Exception ex)
             {
@@ -108,7 +131,14 @@ namespace LaneController.Manager
             Log.Called("segments:" + enumerable);
             foreach (ushort item in enumerable)
             {
-                NetUtil.ToSegment(item).UpdateLanes(item, loading: true);
+                if (item != 0)
+                {
+                    ref NetSegment netSegment = ref Singleton<NetManager>.instance.m_segments.m_buffer[item];
+                    if ((netSegment.m_flags & NetSegment.Flags.Created) != NetSegment.Flags.None)
+                    {
+                        netSegment.UpdateLanes(item, true);
+                    }
+                }
             }
         }
 
@@ -121,21 +151,21 @@ namespace LaneController.Manager
         {
             if (segmentId == 0)
             {
-                return [];
+                return new CustomLane[0];
             }
-            return [.. (from laneIdAndIndex in new LaneIterator(segmentId)
+            return (from laneIdAndIndex in new LaneIterator(segmentId)
                     select GetLane(laneIdAndIndex.LaneId) into lane
                     where lane != null
-                    select lane)];
+                    select lane).ToArray();
         }
 
         public CustomLane[] GetOrCreateLanes(ushort segmentId)
         {
             if (segmentId == 0)
             {
-                return [];
+                return new CustomLane[0];
             }
-            return [.. new LaneIterator(segmentId).Select(GetOrCreateLane)];
+            return new LaneIterator(segmentId).Select(GetOrCreateLane).ToArray();
         }
 
         public CustomLane GetOrCreateLane(LaneIdAndIndex laneIdAndIndex)
@@ -166,17 +196,38 @@ namespace LaneController.Manager
 
         public void UpateLanes(ushort segmentId)
         {
+            if (segmentId == 0) return;
+
             float num = 0f;
             int num2 = 0;
-            foreach (LaneIdAndIndex item in new LaneIterator(segmentId))
+
+            try
             {
-                GetLane(item.LaneId)?.PostfixLaneBezier();
-                num += item.Lane.m_length;
-                num2++;
+                foreach (LaneIdAndIndex item in new LaneIterator(segmentId))
+                {
+                    var customLane = GetLane(item.LaneId);
+                    if (customLane != null)
+                    {
+                        customLane.PostfixLaneBezier();
+                    }
+
+                    float length = Singleton<NetManager>.instance.m_lanes.m_buffer[item.LaneId].m_length;
+                    if (length > 0f)
+                    {
+                        num += length;
+                        num2++;
+                    }
+                }
+
+                if (num2 > 0)
+                {
+                    ref NetSegment netSegment = ref Singleton<NetManager>.instance.m_segments.m_buffer[segmentId];
+                    netSegment.m_averageLength = num / (float)num2;
+                }
             }
-            if (num2 > 0)
+            catch (Exception ex)
             {
-                NetUtil.ToSegment(segmentId).m_averageLength = num / (float)num2;
+                UnityEngine.Debug.LogError($"[LaneController] Error in UpateLanes: {ex}");
             }
         }
     }
